@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const users = require('../mock/users');
+const db = require('../db'); // Importa o banco de dados SQLite
 
 const router = express.Router();
 
@@ -18,42 +18,46 @@ router.post('/signup', async (req, res) => {
     }
 
     // Verifica se o email já está em uso
-    const userExists = users.find((u) => u.email === email);
-    if (userExists) {
-      return res.status(409).json({
-        message: 'Este email já está em uso!'
-      });
-    }
+    db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
+      if (user) {
+        return res.status(409).json({
+          message: 'Este email já está em uso!'
+        });
+      }
 
-    // Gera o hash da senha
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+      // Gera o hash da senha
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Cria o novo usuário
-    const newUser = {
-      id: users.length + 1, // Simples geração de ID para mock
-      name,
-      email,
-      password: hashedPassword,
-      createdAt: new Date()
-    };
+      // Cria o novo usuário no banco de dados
+      db.run('INSERT INTO users (name, email, password, createdAt) VALUES (?, ?, ?, ?)',
+        [name, email, hashedPassword, new Date().toISOString()], function (err) {
+          if (err) {
+            return res.status(500).json({
+              message: 'Erro ao criar usuário!'
+            });
+          }
 
-    // Adiciona ao array de usuários (mock)
-    users.push(newUser);
+          const newUser = {
+            id: this.lastID,
+            name,
+            email,
+            createdAt: new Date().toISOString()
+          };
 
-    // Gera o token JWT
-    const token = jwt.sign(
-      { id: newUser.id, email: newUser.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
+          // Gera o token JWT
+          const token = jwt.sign(
+            { id: newUser.id, email: newUser.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+          );
 
-    // Retorna sucesso e token
-    res.status(201).json({
-      message: 'Usuário criado com sucesso!',
-      token
+          res.status(201).json({
+            message: 'Usuário criado com sucesso!',
+            token
+          });
+        });
     });
-
   } catch (error) {
     console.error('Erro no signup:', error);
     res.status(500).json({
@@ -67,26 +71,26 @@ router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   // Verifica se o usuário existe
-  const user = users.find((u) => u.email === email);
+  db.get('SELECT * FROM users WHERE email = ?', [email], async (err, user) => {
+    if (!user) {
+      return res.status(404).json({ message: 'Usuário não encontrado!' });
+    }
 
-  if (!user) {
-    return res.status(404).json({ message: 'Usuário não encontrado!' });
-  }
+    // Verifica a senha
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Credenciais inválidas!' });
+    }
 
-  // Verifica a senha
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    return res.status(401).json({ message: 'Credenciais inválidas!' });
-  }
+    // Gera o token JWT
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-  // Gera o token JWT
-  const token = jwt.sign(
-    { id: user.id, email: user.email },
-    process.env.JWT_SECRET,
-    { expiresIn: '1h' }
-  );
-
-  res.json({ message: 'Login realizado com sucesso!', token });
+    res.json({ message: 'Login realizado com sucesso!', token });
+  });
 });
 
 // Rota protegida de exemplo
