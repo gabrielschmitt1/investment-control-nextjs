@@ -1,0 +1,19 @@
+/* Contêiner principal da página */
+.pageContainer {
+  @apply flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-400 via-blue-500 to-purple-600 text-white;
+}
+
+/* Título principal */
+.title {
+  @apply text-4xl font-bold mb-6;
+}
+
+/* Texto de descrição */
+.description {
+  @apply mb-6 text-lg;
+}
+
+/* Botão de logout */
+.logoutButton {
+  @apply px-6 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 focus:outline-none;
+}
