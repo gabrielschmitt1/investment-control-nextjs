@@ -101,8 +101,8 @@ Frontend:
  - npm run lint: Roda o ESLint para verificar problemas de estilo de código.
  - npm run test: Executa os testes automatizados com Cypress.
 
-Contribuições
+### Contribuições
 Este é um projeto de estudo pessoal, mas se você quiser contribuir, sinta-se à vontade para abrir um pull request com melhorias ou correções de bugs!
 
-Licença
+### Licença
 Este projeto está licenciado sob a Licença ISC.
