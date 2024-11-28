@@ -19,9 +19,9 @@ describe('Página de Login', () => {
     cy.get('input:invalid').should('have.length', 2); // Email e senha são obrigatórios
   });
 
-  it('deve fazer login com sucesso com credenciais válidas', () => {
-    const email = 'user@teste.com';
-    const senha = 'password123';
+  it.only('deve fazer login com sucesso com credenciais válidas', () => {
+    const email = 'teste@teste.com';
+    const senha = '123456';
 
     // Simula a API de login para retornar sucesso
     cy.intercept('POST', 'http://localhost:5000/api/auth/login', {
