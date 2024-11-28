@@ -67,7 +67,7 @@ describe('Página de Cadastro', () => {
       password: senha,
     });
 
-    cy.url().should('include', '/home'); // Redireciona para a página inicial
+    cy.url().should('include', '/dashboard'); // Redireciona para a página inicial
   });
 
   it('deve exibir uma mensagem de erro se a API retornar falha', () => {

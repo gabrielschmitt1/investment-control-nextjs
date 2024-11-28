@@ -3,20 +3,24 @@
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import styles from './LoginPage.module.css';
+import styles from './SignUpPage.module.css';
 import Link from 'next/link';
 
 interface FormData {
+  name: string;
   email: string;
   password: string;
-  remember: boolean;
+  confirmPassword: string;
+  terms: boolean;
 }
 
-const LoginPage: React.FC = () => {
+const SignUpPage: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
+    name: '',
     email: '',
     password: '',
-    remember: false
+    confirmPassword: '',
+    terms: false
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -30,19 +34,43 @@ const LoginPage: React.FC = () => {
     }));
   };
 
+  const validateForm = (): string => {
+    if (formData.password.length < 6) {
+      return 'A senha deve ter pelo menos 6 caracteres';
+    }
+    if (formData.password !== formData.confirmPassword) {
+      return 'As senhas não coincidem';
+    }
+    if (!formData.terms) {
+      return 'Você deve aceitar os termos de uso';
+    }
+    return '';
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    const validationError = validateForm();
+    
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setLoading(true);
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const response = await axios.post('http://localhost:5000/api/auth/signup', {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      });
+      
       const { token } = response.data;
-
       document.cookie = `authToken=${token}; path=/;`;
-      router.push('/home');
-    } catch (err) {
-      setError('Credenciais inválidas!');
+      router.push('/dashboard');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Erro ao criar conta. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -54,7 +82,7 @@ const LoginPage: React.FC = () => {
         <div className={styles.formContainer}>
           <div className={styles.formWrapper}>
             <h1 className={styles.title}>
-              Entre na sua conta
+              Crie sua conta
             </h1>
             
             {error && <div className={styles.error}
@@ -64,6 +92,25 @@ const LoginPage: React.FC = () => {
             >{error}</div>}
             
             <form className={styles.form} onSubmit={handleSubmit}>
+              <div className={styles.formGroup}>
+                <label 
+                  htmlFor="name" 
+                  className={styles.label}
+                >
+                  Seu nome completo
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  className={styles.input}
+                  placeholder="João Silva"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
               <div className={styles.formGroup}>
                 <label 
                   htmlFor="email" 
@@ -100,29 +147,56 @@ const LoginPage: React.FC = () => {
                   onChange={handleChange}
                   required
                 />
+                <small className={styles.hint}>
+                  Mínimo de 6 caracteres
+                </small>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label 
+                  htmlFor="confirmPassword" 
+                  className={styles.label}
+                >
+                  Confirme sua senha
+                </label>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  id="confirmPassword"
+                  placeholder="••••••••"
+                  className={styles.input}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                />
               </div>
               
               <div className={styles.checkboxContainer}>
                 <div className={styles.checkboxWrapper}>
                   <div className="flex items-center h-5">
                     <input
-                      id="remember"
-                      name="remember"
+                      id="terms"
+                      name="terms"
                       type="checkbox"
                       className={styles.checkboxInput}
-                      checked={formData.remember}
+                      checked={formData.terms}
                       onChange={handleChange}
+                      required
                     />
                   </div>
                   <div className={styles.checkboxLabel}>
-                    <label htmlFor="remember">
-                      Lembrar-me
+                    <label htmlFor="terms">
+                      Eu li e aceito os{' '}
+                      <a href="#" className={styles.link}>
+                        termos de uso
+                      </a>
+                      {' '}e a{' '}
+                      <a href="#" className={styles.link}>
+                        política de privacidade
+                      </a>
                     </label>
                   </div>
                 </div>
-                <a href="#" className={styles.forgotPassword}>
-                  Esqueceu a senha?
-                </a>
               </div>
               
               <button
@@ -130,13 +204,13 @@ const LoginPage: React.FC = () => {
                 disabled={loading}
                 className={styles.submitButton}
               >
-                {loading ? 'Carregando...' : 'Entrar'}
+                {loading ? 'Criando conta...' : 'Criar conta'}
               </button>
               
-              <p className={styles.registerText}>
-                Ainda não tem uma conta?{' '}
-                <Link href="/signup" className={styles.registerLink}>
-                  Cadastre-se
+              <p className={styles.loginText}>
+                Já tem uma conta?{' '}
+                <Link href="/login" className={styles.loginLink}>
+                  Entre aqui
                 </Link>
               </p>
             </form>
@@ -147,4 +221,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default SignUpPage;

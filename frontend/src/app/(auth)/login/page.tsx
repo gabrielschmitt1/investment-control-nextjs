@@ -3,28 +3,33 @@
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import styles from './SignUpPage.module.css';
+import styles from './LoginPage.module.css';
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 interface FormData {
-  name: string;
   email: string;
   password: string;
-  confirmPassword: string;
-  terms: boolean;
+  remember: boolean;
 }
 
-const SignUpPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
-    name: '',
     email: '',
     password: '',
-    confirmPassword: '',
-    terms: false
+    remember: false
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+
+  // Verifica autenticação ao carregar a página
+  useEffect(() => {
+    const token = document.cookie.includes('authToken');
+    if (token) {
+      router.push('/dashboard');
+    }
+  }, []);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -34,43 +39,25 @@ const SignUpPage: React.FC = () => {
     }));
   };
 
-  const validateForm = (): string => {
-    if (formData.password.length < 6) {
-      return 'A senha deve ter pelo menos 6 caracteres';
-    }
-    if (formData.password !== formData.confirmPassword) {
-      return 'As senhas não coincidem';
-    }
-    if (!formData.terms) {
-      return 'Você deve aceitar os termos de uso';
-    }
-    return '';
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const validationError = validateForm();
-    
-    if (validationError) {
-      setError(validationError);
-      return;
-    }
-
     setLoading(true);
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/signup', {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password
-      });
-      
+      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
       const { token } = response.data;
-      document.cookie = `authToken=${token}; path=/;`;
-      router.push('/home');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Erro ao criar conta. Tente novamente.');
+
+      // Configuração mais segura do cookie
+      const expirationDays = formData.remember ? 7 : 1;
+      const expires = new Date();
+      expires.setDate(expires.getDate() + expirationDays);
+
+      document.cookie = `authToken=${token}; path=/; expires=${expires.toUTCString()}; SameSite=Strict; ${process.env.NODE_ENV === 'production' ? 'Secure;' : ''}`;
+      
+      router.push('/dashboard');
+    } catch (err) {
+      setError('Credenciais inválidas!');
     } finally {
       setLoading(false);
     }
@@ -82,7 +69,7 @@ const SignUpPage: React.FC = () => {
         <div className={styles.formContainer}>
           <div className={styles.formWrapper}>
             <h1 className={styles.title}>
-              Crie sua conta
+              Entre na sua conta
             </h1>
             
             {error && <div className={styles.error}
@@ -92,25 +79,6 @@ const SignUpPage: React.FC = () => {
             >{error}</div>}
             
             <form className={styles.form} onSubmit={handleSubmit}>
-              <div className={styles.formGroup}>
-                <label 
-                  htmlFor="name" 
-                  className={styles.label}
-                >
-                  Seu nome completo
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  id="name"
-                  className={styles.input}
-                  placeholder="João Silva"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
               <div className={styles.formGroup}>
                 <label 
                   htmlFor="email" 
@@ -147,56 +115,29 @@ const SignUpPage: React.FC = () => {
                   onChange={handleChange}
                   required
                 />
-                <small className={styles.hint}>
-                  Mínimo de 6 caracteres
-                </small>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label 
-                  htmlFor="confirmPassword" 
-                  className={styles.label}
-                >
-                  Confirme sua senha
-                </label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  id="confirmPassword"
-                  placeholder="••••••••"
-                  className={styles.input}
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  required
-                />
               </div>
               
               <div className={styles.checkboxContainer}>
                 <div className={styles.checkboxWrapper}>
                   <div className="flex items-center h-5">
                     <input
-                      id="terms"
-                      name="terms"
+                      id="remember"
+                      name="remember"
                       type="checkbox"
                       className={styles.checkboxInput}
-                      checked={formData.terms}
+                      checked={formData.remember}
                       onChange={handleChange}
-                      required
                     />
                   </div>
                   <div className={styles.checkboxLabel}>
-                    <label htmlFor="terms">
-                      Eu li e aceito os{' '}
-                      <a href="#" className={styles.link}>
-                        termos de uso
-                      </a>
-                      {' '}e a{' '}
-                      <a href="#" className={styles.link}>
-                        política de privacidade
-                      </a>
+                    <label htmlFor="remember">
+                      Lembrar-me
                     </label>
                   </div>
                 </div>
+                <a href="#" className={styles.forgotPassword}>
+                  Esqueceu a senha?
+                </a>
               </div>
               
               <button
@@ -204,13 +145,13 @@ const SignUpPage: React.FC = () => {
                 disabled={loading}
                 className={styles.submitButton}
               >
-                {loading ? 'Criando conta...' : 'Criar conta'}
+                {loading ? 'Carregando...' : 'Entrar'}
               </button>
               
-              <p className={styles.loginText}>
-                Já tem uma conta?{' '}
-                <Link href="/login" className={styles.loginLink}>
-                  Entre aqui
+              <p className={styles.registerText}>
+                Ainda não tem uma conta?{' '}
+                <Link href="/signup" className={styles.registerLink}>
+                  Cadastre-se
                 </Link>
               </p>
             </form>
@@ -221,4 +162,4 @@ const SignUpPage: React.FC = () => {
   );
 };
 
-export default SignUpPage;
+export default LoginPage;
