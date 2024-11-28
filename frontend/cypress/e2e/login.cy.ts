@@ -40,7 +40,7 @@ describe('Página de Login', () => {
     });
 
     // Verifica redirecionamento para a página inicial
-    cy.url().should('include', '/home');
+    cy.url().should('include', '/dashboard');
   });
 
   it('deve exibir uma mensagem de erro com credenciais inválidas', () => {

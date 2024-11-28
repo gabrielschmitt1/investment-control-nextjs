@@ -2,18 +2,28 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('authToken')?.value;
+  const authToken = request.cookies.get('authToken');
+  const { pathname } = request.nextUrl;
 
-  // Se o token não existir, redireciona para a página de erro
-  if (!token) {
-    return NextResponse.redirect(new URL('/error', request.url));
+  // Se não tem token e não está na página de login, redireciona para login
+  if (!authToken && pathname !== '/login') {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // Caso contrário, permite o acesso
+  // Se tem token e está na página de login, redireciona para dashboard
+  if (authToken && pathname === '/login') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  // Se tem token e está na página de home, redireciona para dashboard
+  if (authToken && pathname === '/') {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
   return NextResponse.next();
 }
 
-// Define as rotas que devem passar pelo middleware
+// Configura quais rotas serão verificadas pelo middleware
 export const config = {
-  matcher: ['/home/:path*'], // Adicione as rotas protegidas aqui
+  matcher: ['/', '/login', '/dashboard']
 };

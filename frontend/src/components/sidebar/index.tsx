@@ -1,10 +1,23 @@
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
+'use client';
+
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetDescription, SheetTitle } from "@/components/ui/sheet"
 import { Button } from "../ui/button"
 import Link from "next/link"
 import { Home, LogOut, Package, PanelBottom, Settings, ShoppingBag, Users } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
+import { useRouter } from "next/navigation";
 
 export function Sidebar(){
+  const router = useRouter();
+
+  // Função de logout
+  const handleLogout = () => {
+    // Remove o token do cookie
+    document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+    // Redireciona para a página de login
+    router.push('/login');
+  };
+
   return(
     <div className="flex w-full flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 border-r bg-background sm:flex flex-col">
@@ -96,14 +109,22 @@ export function Sidebar(){
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Link
+                {/* <Link
                   href="#"
                   className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg
                   text-muted-foreground transition-colors hover:text-foreground"
                 >
                   <LogOut className="h-5 w-5 text-red-500"/>
                   <span className="sr-only">Sair</span>
-                </Link>
+                </Link> */}
+                <button
+                  onClick={handleLogout}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg
+                  text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <LogOut className="h-5 w-5 text-red-500"/>
+                  <span className="sr-only">Sair</span>
+                </button>
               </TooltipTrigger>
               <TooltipContent side="right">Sair</TooltipContent>
             </Tooltip>
@@ -125,6 +146,12 @@ export function Sidebar(){
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="sm:max-w-x">
+              <SheetHeader className="hidden">
+                <SheetTitle>Menu de acesso</SheetTitle>
+                  <SheetDescription>
+                    Menu de acesso
+                  </SheetDescription>
+              </SheetHeader>
               <nav className="grid gap-6 text-lg font-medium">
                 <Link 
                   href="#"
@@ -180,7 +207,14 @@ export function Sidebar(){
                   <Settings className="h-5 w-5 transition-all"/>
                   Configurações
                 </Link>
-
+                <button 
+                  onClick={handleLogout}
+                  className="flex items-center gap-4 px-2.5 text-muted-foreground
+                  hover:text-foreground"
+                >
+                  <LogOut className="h-5 w-5 text-red-500 transition-all"/>
+                  Sair
+                </button>
               </nav>
             </SheetContent>
           </Sheet>
