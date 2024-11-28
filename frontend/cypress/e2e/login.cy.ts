@@ -20,8 +20,8 @@ describe('Página de Login', () => {
   });
 
   it('deve fazer login com sucesso com credenciais válidas', () => {
-    const email = 'user@teste.com';
-    const senha = 'password123';
+    const email = 'teste@teste.com';
+    const senha = '123456';
 
     // Simula a API de login para retornar sucesso
     cy.intercept('POST', 'http://localhost:5000/api/auth/login', {
@@ -34,7 +34,7 @@ describe('Página de Login', () => {
     cy.get('button[type="submit"]').click();
 
     cy.wait('@loginRequest').its('request.body').should('deep.equal', {
-      email,
+      email: email,
       password: senha,
       remember: false, // Estado padrão
     });
