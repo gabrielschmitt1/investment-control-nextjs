@@ -27,13 +27,13 @@ describe('Página de Login', () => {
     cy.intercept('POST', 'http://localhost:5000/api/auth/login', {
       statusCode: 200,
       body: { token: 'fakeToken' },
-    }).as('loginRequest');
+    }).as('successfulLoginRequest');
 
     cy.get('input[name="email"]').type(email);
     cy.get('input[name="password"]').type(senha);
     cy.get('button[type="submit"]').click();
 
-    cy.wait('@loginRequest').its('request.body').should('deep.equal', {
+    cy.wait('@successfulLoginRequest').its('request.body').should('deep.equal', {
       email: email,
       password: senha,
       remember: false, // Estado padrão
@@ -51,14 +51,14 @@ describe('Página de Login', () => {
     cy.intercept('POST', 'http://localhost:5000/api/auth/login', {
       statusCode: 401,
       body: { message: 'Credenciais inválidas!' },
-    }).as('loginRequest');
+    }).as('failedLoginRequest');
   
     cy.get('input[name="email"]').type(email);
     cy.get('input[name="password"]').type(senha);
     cy.get('button[type="submit"]').click();
   
     // Espera a interceptação ser chamada
-    cy.wait('@loginRequest');
+    cy.wait('@failedLoginRequest');
   
     // Verifica se a mensagem de erro está visível
     cy.get('#error-message').should('be.visible').and('contain', 'Credenciais inválidas!');
