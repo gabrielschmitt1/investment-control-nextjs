@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { calculateTax } from '../../utils/taxCalculator'
 
+type InvestmentType = 'acoes' | 'etf' | 'fii';
 export function TaxCalculator() {
-  const [investmentType, setInvestmentType] = useState('')
+  const [investmentType, setInvestmentType] = useState<InvestmentType | ''>('');
   const [buyValue, setBuyValue] = useState('')
   const [sellValue, setSellValue] = useState('')
   const [result, setResult] = useState<{ profit: number; tax: number } | null>(null)
@@ -30,14 +31,14 @@ export function TaxCalculator() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <Select onValueChange={(value) => setInvestmentType(value)}>
+          <Select onValueChange={(value) => setInvestmentType(value as InvestmentType)}>
             <SelectTrigger>
               <SelectValue placeholder="Selecione o tipo de investimento" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="acoes">Ações</SelectItem>
               <SelectItem value="etf">ETF</SelectItem>
-              <SelectItem value="fii">FII's</SelectItem>
+              <SelectItem value="fii">Fundo Imobiliário</SelectItem>
             </SelectContent>
           </Select>
           <Input
