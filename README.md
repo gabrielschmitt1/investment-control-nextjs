@@ -21,9 +21,9 @@ Este é um projeto de estudo pessoal que utiliza **Next.js** no frontend e **Nod
 
 O projeto é dividido em duas partes principais:
 
-1. **Frontend**: Localizado na pasta `frontend/` e construído com **Next.js**. A aplicação oferece uma interface de login com integração com o backend.
+1. **Frontend**: Localizado na raiz do projeto e construído com **Next.js**. A aplicação oferece uma interface de login com integração com o backend.
    
-2. **Backend**: Localizado na pasta `backend/` e construído com **Node.js** e **Express**. Ele fornece uma API RESTful para login e registro de usuários, utilizando JWT para autenticação.
+2. **Backend**: Localizado na pasta `api/` e construído com **Node.js** e **Express**. Ele fornece uma API RESTful para login e registro de usuários, utilizando JWT para autenticação.
 
 ## Como Rodar o Projeto
 
@@ -31,11 +31,11 @@ O projeto é dividido em duas partes principais:
 Antes de rodar o projeto, certifique-se de ter o [Node.js](https://nodejs.org/) instalado.
 
 ### 1. Backend
-Navegue até a pasta `backend/` e siga os passos abaixo:
+Navegue até a pasta `api/` e siga os passos abaixo:
 
 ```bash
 # Navegue até a pasta do backend
-cd backend
+cd api
 
 # Instale as dependências
 npm install
@@ -45,12 +45,9 @@ npm run dev
 ```
 
 ### 2. Frontend
-Navegue até a pasta `frontend/` e siga os passos abaixo:
+Dentro da raiz do projeto siga os passos abaixo:
 
 ```bash
-# Navegue até a pasta do backend
-cd frontend
-
 # Instale as dependências
 npm install
 
@@ -59,10 +56,9 @@ npm run dev
 ```
 
 ### 3. Testes
-Navegue até a pasta `frontend/` e siga os passos abaixo:
+Dentro da raiz do projeto siga os passos abaixo:
 
 ```bash
-# No diretório frontend
 npm run test
 
 ```
@@ -71,14 +67,13 @@ npm run test
 Este projeto está configurado para rodar testes automaticamente sempre que um novo código for enviado para o GitHub. A pipeline de CI/CD foi configurada com o GitHub Actions. Para mais detalhes, consulte o arquivo .github/workflows/cypress-tests.yml.
 
 ```bash
-/frontend
     /node_modules
     package.json
     pages/
     components/
     ...
 
-/backend
+/api
     /node_modules
     package.json
     server.js
