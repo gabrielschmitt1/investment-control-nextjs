@@ -35,5 +35,4 @@ jobs:
 
       - name: Run Cypress Tests
         run: |
-          cd frontend
           npm run test
