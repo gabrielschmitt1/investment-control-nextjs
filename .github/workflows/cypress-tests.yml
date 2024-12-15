@@ -21,8 +21,21 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Dependencies
-        run: | 
+      - name: Install Dependencies Backend
+        run: |
+          cd backend
+          npm install
+        
+      - name: Start Backend Server
+        run: |
+          cd backend
+          npm install
+          npm run dev &
+        env:
+          NODE_ENV: test
+
+      - name: Install Dependencies Frontend
+        run: |
           cd frontend
           npm install
         
@@ -35,6 +48,6 @@ jobs:
           NODE_ENV: test
 
       - name: Run Cypress Tests
-        run: | 
+        run: |
           cd frontend
           npm run test
