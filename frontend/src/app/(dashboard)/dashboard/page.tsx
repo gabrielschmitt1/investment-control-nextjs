@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BadgeDollarSign, DollarSign, Percent, Users } from "lucide-react";
 import { ChartOverview } from "@/components/chart";
-import { Sales } from "@/components/sales"
+import { Sales } from "@/components/sales";
+import { TaxCalculator } from "@/components/tax";
 
 export default function Dashboard() {
 
@@ -103,8 +104,9 @@ export default function Dashboard() {
         </Card>
 
       </section>
-      <section className="mt-4 flex flex-col lg:grid-cols-2 md:flex-row gap-4">
+      <section className="mt-4 flex flex-col grid lg:grid-cols-3 md:flex-row gap-4">
         <ChartOverview/>
+        <TaxCalculator/>
         <Sales/>
       </section>
     </main>
