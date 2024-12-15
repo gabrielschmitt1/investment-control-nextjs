@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+import { fakerPT_BR as faker } from '@faker-js/faker';
 
 describe('Página de Login', () => {
   beforeEach(() => {
@@ -20,31 +21,31 @@ describe('Página de Login', () => {
   });
 
   it('deve fazer login com sucesso com credenciais válidas', () => {
-    const email = 'teste@teste.com';
-    const senha = '123456';
-
-    // Simula a API de login para retornar sucesso
+    const email = faker.internet.email();
+    const password = "123456"
+      // Simula a API de login para retornar sucesso
     cy.intercept('POST', 'http://localhost:5000/api/auth/login', {
       statusCode: 200,
       body: { token: 'fakeToken' },
     }).as('successfulLoginRequest');
 
     cy.get('input[name="email"]').type(email);
-    cy.get('input[name="password"]').type(senha);
+    cy.get('input[name="password"]').type(password);
     cy.get('button[type="submit"]').click();
 
     cy.wait('@successfulLoginRequest').its('request.body').should('deep.equal', {
       email: email,
-      password: senha,
+      password: password,
       remember: false, // Estado padrão
     });
-
+    
     // Verifica redirecionamento para a página inicial
     cy.url().should('include', '/dashboard');
+
   });
 
   it('deve exibir uma mensagem de erro com credenciais inválidas', () => {
-    const email = 'user@teste.com';
+    const email = faker.internet.email();
     const senha = 'senhaErrada';
   
     // Simula falha na API de login
