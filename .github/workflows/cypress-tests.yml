@@ -23,12 +23,10 @@ jobs:
 
       - name: Install Dependencies Frontend
         run: |
-          cd frontend
           npm install
         
       - name: Start Frontend Server
         run: |
-          cd frontend
           npm install
           npm run build 
           npm run start &
